@@ -1,0 +1,300 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Name - Full Stack Developer Portfolio</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .dark-mode {
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+        }
+        .dark-mode .bg-light {
+            background-color: #2c2c2c !important;
+        }
+        .dark-mode .card {
+            background-color: #333;
+            color: #e0e0e0;
+        }
+        .hero-section {
+            background: linear-gradient(135deg, #007bff, #6f42c1);
+            color: white;
+            padding: 6rem 0;
+            text-align: center;
+        }
+        .section {
+            padding: 5rem 0;
+        }
+        .project-card {
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .project-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        .skills-progress .progress {
+            height: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .navbar {
+            transition: background-color 0.3s;
+        }
+        .dark-mode .navbar {
+            background-color: #2c2c2c !important;
+        }
+        .contact-form .form-control {
+            border-radius: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="#">Your Name</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#skills">Skills</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#projects">Projects</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#education">Education</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
+                    <li class="nav-item">
+                        <button id="theme-toggle" class="btn btn-outline-secondary">Toggle Dark Mode</button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section" data-aos="fade-up">
+        <div class="container">
+            <h1 class="display-3 font-weight-bold">Your Name</h1>
+            <p class="lead">Full Stack Developer | Crafting Modern Web & Mobile Solutions</p>
+            <a href="#contact" class="btn btn-light btn-lg mt-3">Get in Touch</a>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="section bg-light" data-aos="fade-up">
+        <div class="container">
+            <h2 class="text-center mb-5">About Me</h2>
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <p class="lead text-center">I'm a Full Stack Developer with 3 years of experience building dynamic web and mobile applications. Proficient in PHP, Laravel, JavaScript, and .NET, I specialize in integrating APIs (e.g., Stripe, CarAPI) and creating responsive, user-friendly interfaces with Bootstrap and jQuery.</p>
+                    <p class="text-center">Key Achievement: Developed a car management system with real-time license plate lookups and secure payment processing, boosting user engagement by 35%.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Skills Section -->
+    <section id="skills" class="section bg-white" data-aos="fade-up">
+        <div class="container">
+            <h2 class="text-center mb-5">Technical Skills</h2>
+            <div class="row justify-content-center">
+                <div class="col-md-8 skills-progress">
+                    <div class="mb-3">
+                        <label>HTML</label>
+                        <div class="progress"><div class="progress-bar bg-primary" style="width: 90%"></div></div>
+                    </div>
+                    <div class="mb-3">
+                        <label>CSS</label>
+                        <div class="progress"><div class="progress-bar bg-primary" style="width: 85%"></div></div>
+                    </div>
+                    <div class="mb-3">
+                        <label>JavaScript</label>
+                        <div class="progress"><div class="progress-bar bg-primary" style="width: 80%"></div></div>
+                    </div>
+                    <div class="mb-3">
+                        <label>Bootstrap</label>
+                        <div class="progress"><div class="progress-bar bg-primary" style="width: 90%"></div></div>
+                    </div>
+                    <div class="mb-3">
+                        <label>jQuery</label>
+                        <div class="progress"><div class="progress-bar bg-primary" style="width: 75%"></div></div>
+                    </div>
+                    <div class="mb-3">
+                        <label>PHP</label>
+                        <div class="progress"><div class="progress-bar bg-primary" style="width: 85%"></div></div>
+                    </div>
+                    <div class="mb-3">
+                        <label>Laravel</label>
+                        <div class="progress"><div class="progress-bar bg-primary" style="width: 80%"></div></div>
+                    </div>
+                    <div class="mb-3">
+                        <label>MySQL</label>
+                        <div class="progress"><div class="progress-bar bg-primary" style="width: 80%"></div></div>
+                    </div>
+                    <div class="mb-3">
+                        <label>C# & .NET</label>
+                        <div class="progress"><div class="progress-bar bg-primary" style="width: 70%"></div></div>
+                    </div>
+                    <div class="mb-3">
+                        <label>MSSQL</label>
+                        <div class="progress"><div class="progress-bar bg-primary" style="width: 70%"></div></div>
+                    </div>
+                    <div class="mb-3">
+                        <label>Java</label>
+                        <div class="progress"><div class="progress-bar bg-primary" style="width: 75%"></div></div>
+                    </div>
+                    <div class="mb-3">
+                        <label>Android</label>
+                        <div class="progress"><div class="progress-bar bg-primary" style="width: 70%"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section id="projects" class="section bg-light" data-aos="fade-up">
+        <div class="container">
+            <h2 class="text-center mb-5">Projects</h2>
+            <div class="row">
+                <div class="col-md-4 mb-4" data-aos="zoom-in">
+                    <div class="card project-card shadow">
+                        <img src="https://via.placeholder.com/300x200?text=Car+Management" class="card-img-top" alt="Car Management System">
+                        <div class="card-body">
+                            <h5 class="card-title">Car Management System</h5>
+                            <p class="card-text">A full-stack PHP/Laravel application with Bootstrap 5, integrated with Stripe for payments and CarAPI for real-time license plate lookups. Features a responsive dashboard and secure user authentication.</p>
+                            <a href="https://projects.anomoz.com/ke/myensaAutoGestion" class="btn btn-primary">View Project</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4" data-aos="zoom-in" data-aos-delay="100">
+                    <div class="card project-card shadow">
+                        <img src="https://via.placeholder.com/300x200?text=E-commerce+App" class="card-img-top" alt="E-commerce App">
+                        <div class="card-body">
+                            <h5 class="card-title">E-commerce Mobile App</h5>
+                            <p class="card-text">An Android app built with Java, featuring product browsing, cart management, and payment integration. Improved user retention by 25% through optimized UX.</p>
+                            <a href="#" class="btn btn-primary">View Project</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4" data-aos="zoom-in" data-aos-delay="200">
+                    <div class="card project-card shadow">
+                        <img src="https://via.placeholder.com/300x200?text=Inventory+Dashboard" class="card-img-top" alt="Inventory Dashboard">
+                        <div class="card-body">
+                            <h5 class="card-title">Inventory Management Dashboard</h5>
+                            <p class="card-text">A C#/.NET web app with MSSQL backend for real-time inventory tracking. Integrated jQuery for dynamic UI updates, reducing data entry time by 20%.</p>
+                            <a href="#" class="btn btn-primary">View Project</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Education Section -->
+    <section id="education" class="section bg-white" data-aos="fade-up">
+        <div class="container">
+            <h2 class="text-center mb-5">Education</h2>
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <p><strong>Diploma in Software Engineering (3 Years)</strong> - Aptech Computer Education, 2020–2023</p>
+                    <p>Specialized in full-stack development, covering PHP, Java, .NET, and mobile app development. Completed capstone project on a car management system with API integrations.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="section bg-light" data-aos="fade-up">
+        <div class="container">
+            <h2 class="text-center mb-5">Contact Me</h2>
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <p class="text-center">Email: <a href="mailto:your.email@example.com">your.email@example.com</a></p>
+                    <p class="text-center">LinkedIn: <a href="https://linkedin.com/in/yourprofile" target="_blank">linkedin.com/in/yourprofile</a></p>
+                    <p class="text-center">GitHub: <a href="https://github.com/yourusername" target="_blank">github.com/yourusername</a></p>
+                    <form class="contact-form mt-4">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Name</label>
+                            <input type="text" class="form-control" id="name" placeholder="Your Name">
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" placeholder="your.email@example.com">
+                        </div>
+                        <div class="mb-3">
+                            <label for="message" class="form-label">Message</label>
+                            <textarea class="form-control" id="message" rows="4" placeholder="Your Message"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">Send Message</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    <script>
+        // Initialize AOS for animations
+        AOS.init({ duration: 1000 });
+
+        // Dark mode toggle
+        const toggleButton = document.getElementById('theme-toggle');
+        toggleButton.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            toggleButton.textContent = document.body.classList.contains('dark-mode') ? 'Toggle Light Mode' : 'Toggle Dark Mode';
+        });
+
+        // Placeholder form submit (no backend)
+        document.querySelector('.contact-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            alert('Form submitted! (Placeholder - add backend for real functionality)');
+        });
+    </script>
+</body>
+</html>
